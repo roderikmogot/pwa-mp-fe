@@ -35,17 +35,26 @@ export default function useIndexedDB() {
     const store = transaction.objectStore(storeName);
     const newItem = { title, description, image: imageArrayBuffer };
 
-    store.add(newItem);
+    store.put(newItem); // Use put() instead of add() to update existing data with the same key
   };
 
   const getAllItems = async () => {
     return new Promise((resolve, reject) => {
+      if (!db.value) {
+        return reject(new Error('Database is not open'));
+      }
+
       const transaction = db.value.transaction([storeName], 'readonly');
       const store = transaction.objectStore(storeName);
       const request = store.getAll();
 
       request.onsuccess = (event) => {
-        resolve(event.target.result);
+        const items = event.target.result.map(item => {
+          const imageBlob = new Blob([item.image], { type: 'image/jpeg' });
+          const imageUrl = URL.createObjectURL(imageBlob);
+          return { ...item, imageUrl };
+        });
+        resolve(items);
       };
 
       request.onerror = (event) => {
