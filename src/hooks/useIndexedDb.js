@@ -35,7 +35,7 @@ export default function useIndexedDB() {
     const store = transaction.objectStore(storeName);
     const newItem = { title, description, image: imageArrayBuffer };
 
-    store.put(newItem); // Use put() instead of add() to update existing data with the same key
+    store.put(newItem); 
   };
 
   const getAllItems = async () => {
