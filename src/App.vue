@@ -103,6 +103,13 @@ const handleFileImport = () => {
   uploader.value.click();
 }
 
+const renderImageUpload = () => {
+  const arrayBuffer = formInput.value.imageUrl;
+  const blob = new Blob([new Uint8Array(arrayBuffer)], { type: 'image/png' });
+  const imageUrl = URL.createObjectURL(blob);
+  return imageUrl;
+}
+
 watch(formInput, async () => {
   await getAllItems().then((items) => {
     console.log('All items:', items);
@@ -196,9 +203,12 @@ watchEffect(() => {
                 </div>
                 <div>
                   <h3 class="font-bold text-lg">Image</h3>
-                  <div v-if="capturedImage">
+                  <div v-if="capturedImage || formInput.imageUrl">
                     <div v-if="capturedImage">
                       <img :src="capturedImage" alt="Captured" class="mt-4 border-2 border-gray-400" />
+                    </div>
+                    <div v-else-if="renderImageUpload()">
+                      <img :src="renderImageUpload()" alt="Uploaded" class="mt-4 border-2 border-gray-400" />
                     </div>
                   </div>
                   <div v-else>
