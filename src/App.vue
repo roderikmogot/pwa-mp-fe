@@ -49,25 +49,18 @@ onMounted(async () => {
 
 const onSubmit = async () => {
   if (capturedImage.value) {
-    // Convert the base64 image to ArrayBuffer
     const base64ImageContent = capturedImage.value.split(';base64,').pop();
-    const blob = new Blob([atob(base64ImageContent)], { type: 'image/png' });
+    const arrayBuffer = Uint8Array.from(atob(base64ImageContent), c => c.charCodeAt(0)).buffer;
 
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      // Convert the base64 image to ArrayBuffer and set it as the imageUrl
-      formInput.value.imageUrl = e.target.result;
+    formInput.value.imageUrl = arrayBuffer;
 
-      // Add the item to the database or perform further processing
-      // ...
+    capturedImage.value = null;
+    showImageDialog.value = false;
+    showCameraDialog.value = false;
 
-      // Clear the captured image
-      capturedImage.value = null;
-    };
-    reader.readAsDataURL(blob); // Read the blob as a Data URL
+    addItemToDatabase();
   } else {
-    // Handle the case when no image is captured
-    // ...
+    addItemToDatabase();
   }
 };
 
@@ -75,7 +68,6 @@ const addItemToDatabase = async () => {
   try {
     await addItem(formInput.value.title, formInput.value.description, formInput.value.imageUrl);
 
-    // Reset values and close dialog
     dialog.value = false;
     formInput.value = {
       title: '',
