@@ -32,8 +32,24 @@ export default function useIndexedDB() {
     const store = transaction.objectStore(storeName);
     const newItem = { title, description, image: imageArrayBuffer };
 
-    store.put(newItem); 
-  };
+    store.put(newItem);
+
+    const blob = new Blob([imageArrayBuffer], { type: 'image/png' });
+
+    // store to api using 
+    const formData = new FormData();
+    formData.append('title', title);
+    formData.append('description', description);
+    formData.append('image', blob);
+
+    await fetch('https://656b2c5adac3630cf727ca4d.mockapi.io/api/v1/recipes', {
+      method: 'POST',
+      query: formData,
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+  }
 
   const getAllItems = async () => {
     return new Promise((resolve, reject) => {
@@ -60,5 +76,18 @@ export default function useIndexedDB() {
     });
   };
 
-  return { openDB, addItem, getAllItems };
+  const deleteItem = async (id) => {
+    const transaction = db.value.transaction([storeName], 'readwrite');
+    const store = transaction.objectStore(storeName);
+  
+    store.delete(id);
+  
+    // Make a call to the endpoint to delete the item with the corresponding ID
+    await fetch(`https://656b2c5adac3630cf727ca4d.mockapi.io/api/v1/recipes/${id}`, {
+      method: 'DELETE',
+    });
+  };
+
+
+  return { openDB, addItem, getAllItems, deleteItem };
 }

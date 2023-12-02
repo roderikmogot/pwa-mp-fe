@@ -4,7 +4,7 @@ import { computed, onMounted, ref, watch, watchEffect } from "vue";
 import useIndexedDB from "./hooks/useIndexedDb";
 import ThickPlus from './svgs/ThickPlus.vue';
 
-const { openDB, addItem, getAllItems } = useIndexedDB();
+const { openDB, addItem, getAllItems, deleteItem } = useIndexedDB();
 
 const uploader = ref(null);
 const dialog = ref(false);
@@ -166,6 +166,15 @@ watchEffect(() => {
   if (video.value)
     video.value.srcObject = stream.value;
 });
+
+const deleteRecipe = async (id) => {
+  try {
+    await deleteItem(id);
+    recipes.value = recipes.value.filter(recipe => recipe.id !== id);
+  } catch (error) {
+    console.error('Error deleting item:', error);
+  }
+};
 </script>
 
 <template>
@@ -179,7 +188,8 @@ watchEffect(() => {
             <v-expansion-panel v-for="recipe in recipes" :key="recipe.id" :title="recipe.id + ' ' + recipe.title">
               <template v-slot:text>
                 <img class="mr-2" :src="recipe.imageUrl" alt="Recipe Image">
-                <span>{{ recipe.title }}</span>
+                <p>{{ recipe.title }}</p>
+                <v-btn @click="deleteRecipe(recipe.id)" variant="default" class="bg-red-500 text-white">Delete</v-btn>
               </template>
             </v-expansion-panel>
           </v-expansion-panels>
@@ -208,7 +218,7 @@ watchEffect(() => {
                   <div class="flex justify-between">
                     <h3 class="font-bold text-lg">Image</h3>
                     <div v-if="capturedImage || formInput.imageUrl">
-                      <v-btn @click="clearImage">Clear</v-btn>
+                      <v-btn @click="clearImage" class="bg-red-500">Clear</v-btn>
                     </div>
                   </div>
                   <div v-if="capturedImage || formInput.imageUrl">
