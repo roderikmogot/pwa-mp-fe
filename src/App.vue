@@ -149,6 +149,11 @@ const takePicture = async () => {
   });
 };
 
+const clearImage = () => {
+  capturedImage.value = null;
+  formInput.value.imageUrl = null;
+}
+
 const toggleCamera = () => {
   enabled.value = !enabled.value;
 };
@@ -173,10 +178,8 @@ watchEffect(() => {
           <v-expansion-panels variant="accordion">
             <v-expansion-panel v-for="recipe in recipes" :key="recipe.id" :title="recipe.id + ' ' + recipe.title">
               <template v-slot:text>
-                <div class="flex items-center flex-col">
-                  <img class="mr-2" :src="recipe.imageUrl" alt="Recipe Image">
-                  <span>{{ recipe.title }}</span>
-                </div>
+                <img class="mr-2" :src="recipe.imageUrl" alt="Recipe Image">
+                <span>{{ recipe.title }}</span>
               </template>
             </v-expansion-panel>
           </v-expansion-panels>
@@ -202,7 +205,12 @@ watchEffect(() => {
                   <v-textarea v-model="formInput.description" required hide-details></v-textarea>
                 </div>
                 <div>
-                  <h3 class="font-bold text-lg">Image</h3>
+                  <div class="flex justify-between">
+                    <h3 class="font-bold text-lg">Image</h3>
+                    <div v-if="capturedImage || formInput.imageUrl">
+                      <v-btn @click="clearImage">Clear</v-btn>
+                    </div>
+                  </div>
                   <div v-if="capturedImage || formInput.imageUrl">
                     <div v-if="capturedImage">
                       <img :src="capturedImage" alt="Captured" class="mt-4 border-2 border-gray-400" />
@@ -239,10 +247,12 @@ watchEffect(() => {
                                       class="px-4 py-2 rounded text-white">
                                       {{ enabled ? "Stop Camera" : "Start Camera" }}
                                     </button>
-                                    <button @click="takePicture" :disabled="!enabled"
-                                      class="px-4 py-2 rounded bg-blue-500 text-white">
-                                      Take Picture
-                                    </button>
+                                    <div v-if="enabled">
+                                      <button @click="takePicture" :disabled="!enabled"
+                                        class="px-4 py-2 rounded bg-blue-500 text-white">
+                                        Take Picture
+                                      </button>
+                                    </div>
                                   </div>
 
                                   <div class="flex flex-wrap gap-2">
