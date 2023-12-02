@@ -22,9 +22,6 @@ export default function useIndexedDB() {
         const database = event.target.result;
         if (!database.objectStoreNames.contains(storeName)) {
           const objectStore = database.createObjectStore(storeName, { keyPath: 'id', autoIncrement: true });
-          objectStore.createIndex('title', 'title', { unique: false });
-          objectStore.createIndex('description', 'description', { unique: false });
-          objectStore.createIndex('image', 'image', { unique: false });
         }
       };
     });
